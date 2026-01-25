@@ -8,15 +8,17 @@ import (
 	"my-chi-app/internal/domain/entity"
 )
 
-// ReactionTypeRepository manages reaction types.
+// ReactionTypeRepository manages reaction types
 type ReactionTypeRepository struct {
 	db *sql.DB
 }
 
+// NewReactionTypeRepository creates a new ReactionTypeRepository
 func NewReactionTypeRepository(db *sql.DB) *ReactionTypeRepository {
 	return &ReactionTypeRepository{db: db}
 }
 
+// Create inserts a new reaction type into the database
 func (r *ReactionTypeRepository) Create(ctx context.Context, rt *entity.ReactionType) (*entity.ReactionType, error) {
 	const q = `
         INSERT INTO reaction_types (name, image)
@@ -36,6 +38,7 @@ func (r *ReactionTypeRepository) Create(ctx context.Context, rt *entity.Reaction
 	return rt, nil
 }
 
+// GetByID returns a reaction type by ID
 func (r *ReactionTypeRepository) GetByID(ctx context.Context, id int64) (*entity.ReactionType, error) {
 	const q = `
         SELECT reaction_type_id, name, image
@@ -46,6 +49,7 @@ func (r *ReactionTypeRepository) GetByID(ctx context.Context, id int64) (*entity
 	return scanReactionType(row)
 }
 
+// List returns all reaction types
 func (r *ReactionTypeRepository) List(ctx context.Context) ([]*entity.ReactionType, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT reaction_type_id, name, image FROM reaction_types ORDER BY reaction_type_id`)
 	if err != nil {
@@ -67,10 +71,12 @@ func (r *ReactionTypeRepository) List(ctx context.Context) ([]*entity.ReactionTy
 	return list, nil
 }
 
+// reactionTypeRowScanner defines the interface for scanning reaction type rows
 type reactionTypeRowScanner interface {
 	Scan(dest ...any) error
 }
 
+// scanReactionType scans a reaction type from the given row scanner
 func scanReactionType(rs reactionTypeRowScanner) (*entity.ReactionType, error) {
 	var (
 		rt    entity.ReactionType

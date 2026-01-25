@@ -8,14 +8,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// New opens a PostgreSQL connection using the given DSN and pings it.
+// Initialize and return a new PostgreSQL connection pool
 func New(ctx context.Context, dsn string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	// Reasonable pool defaults; adjust for your workload.
+	// Configure the connection pool
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(10)
 	db.SetConnMaxIdleTime(5 * time.Minute)

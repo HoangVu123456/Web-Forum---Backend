@@ -9,15 +9,17 @@ import (
 	"my-chi-app/internal/domain/entity"
 )
 
-// TokenRepository manages auth tokens.
+// TokenRepository manages auth tokens
 type TokenRepository struct {
 	db *sql.DB
 }
 
+// NewTokenRepository creates a new TokenRepository
 func NewTokenRepository(db *sql.DB) *TokenRepository {
 	return &TokenRepository{db: db}
 }
 
+// Create inserts a new token into the database
 func (r *TokenRepository) Create(ctx context.Context, t *entity.Token) (*entity.Token, error) {
 	const q = `
         INSERT INTO tokens (user_id, token, expires_at)
@@ -33,6 +35,7 @@ func (r *TokenRepository) Create(ctx context.Context, t *entity.Token) (*entity.
 	return t, nil
 }
 
+// GetByToken retrieves a token by its string value
 func (r *TokenRepository) GetByToken(ctx context.Context, token string) (*entity.Token, error) {
 	const q = `
         SELECT token_id, user_id, token, expires_at
@@ -43,6 +46,7 @@ func (r *TokenRepository) GetByToken(ctx context.Context, token string) (*entity
 	return scanToken(row)
 }
 
+// DeleteByID removes a token by its ID
 func (r *TokenRepository) DeleteByID(ctx context.Context, id int64) error {
 	res, err := r.db.ExecContext(ctx, `DELETE FROM tokens WHERE token_id = $1`, id)
 	if err != nil {
@@ -58,7 +62,7 @@ func (r *TokenRepository) DeleteByID(ctx context.Context, id int64) error {
 	return nil
 }
 
-// PurgeExpired deletes tokens older than cutoff.
+// PurgeExpired deletes all tokens that have expired before the cutoff time
 func (r *TokenRepository) PurgeExpired(ctx context.Context, cutoff time.Time) (int64, error) {
 	res, err := r.db.ExecContext(ctx, `DELETE FROM tokens WHERE expires_at < $1`, cutoff)
 	if err != nil {
@@ -67,10 +71,12 @@ func (r *TokenRepository) PurgeExpired(ctx context.Context, cutoff time.Time) (i
 	return res.RowsAffected()
 }
 
+// tokenRowScanner defines the interface for scanning token rows
 type tokenRowScanner interface {
 	Scan(dest ...any) error
 }
 
+// scanToken scans a token from the given row scanner
 func scanToken(rs tokenRowScanner) (*entity.Token, error) {
 	var t entity.Token
 	if err := rs.Scan(&t.ID, &t.UserID, &t.Token, &t.ExpiresAt); err != nil {

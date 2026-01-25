@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-// User represents an account in the forum.
+// User represents an account in the forum
 type User struct {
 	ID             int64
 	Username       string

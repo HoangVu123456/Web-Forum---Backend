@@ -2,6 +2,7 @@ package entity
 
 import "time"
 
+// Notification represents a user notification
 type Notification struct {
 	ID               int64
 	OwnerID          int64

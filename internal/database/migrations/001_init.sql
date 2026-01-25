@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS posts (
     post_id     BIGSERIAL PRIMARY KEY,
     owner_id    BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    category_id BIGINT NOT NULL REFERENCES categories(category_id) ON DELETE CASCADE,
     headline    VARCHAR(255) NOT NULL,
     text        TEXT,
     image       VARCHAR(255),
@@ -75,13 +76,6 @@ CREATE TABLE IF NOT EXISTS memberships (
     CONSTRAINT memberships_unique_user_category UNIQUE (category_id, user_id)
 );
 
-CREATE TABLE IF NOT EXISTS post_categories (
-    post_category_id BIGSERIAL PRIMARY KEY,
-    post_id          BIGINT NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE,
-    category_id      BIGINT NOT NULL REFERENCES categories(category_id) ON DELETE CASCADE,
-    CONSTRAINT post_categories_unique_post_category UNIQUE (post_id, category_id)
-);
-
 CREATE TABLE IF NOT EXISTS notifications (
     notification_id   BIGSERIAL PRIMARY KEY,
     owner_id          BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
@@ -96,11 +90,11 @@ CREATE TABLE IF NOT EXISTS notifications (
 -- Helpful indexes for lookups
 CREATE INDEX IF NOT EXISTS idx_tokens_user ON tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_owner ON posts(owner_id);
+CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category_id);
 CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_owner ON comments(owner_id);
 CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_comment_id);
 CREATE INDEX IF NOT EXISTS idx_reactions_post_owner ON reactions(post_id, owner_id);
 CREATE INDEX IF NOT EXISTS idx_comment_reactions_comment_owner ON comment_reactions(comment_id, owner_id);
 CREATE INDEX IF NOT EXISTS idx_memberships_category_user ON memberships(category_id, user_id);
-CREATE INDEX IF NOT EXISTS idx_post_categories_post_category ON post_categories(post_id, category_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_owner ON notifications(owner_id);

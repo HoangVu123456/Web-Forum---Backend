@@ -2,6 +2,7 @@ package entity
 
 import "time"
 
+// Comment represents a comment or reply on a post
 type Comment struct {
 	ID              int64
 	PostID          int64

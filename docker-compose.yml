@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./internal/database/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+  app:
+    profiles:
+      - app
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      # Adjust if your app reads a different env var name
+      DB_DSN: ${DB_DSN:-postgres://webforum:webforumpw@db:5432/webforum?sslmode=disable}
+      PORT: ${PORT:-3000}
+    ports:
+      - "${PORT}:3000"
+    command: ["/usr/local/bin/app"]
+
+volumes:
+  db-data:
