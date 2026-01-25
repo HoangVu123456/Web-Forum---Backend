@@ -227,6 +227,31 @@ func HandleLogOut(tokenRepo *repository.TokenRepository) http.HandlerFunc {
 	}
 }
 
+// Swagger annotations:
+// @Summary Verify authentication status
+// @Description Check if the current authentication token is valid and return user ID
+// @Tags auth
+// @Security Bearer
+// @Success 200 {object} VerifyResponse
+// @Failure 401 {object} map[string]string
+// @Router /auth/verify [get]
+func HandleVerifyAuth(userRepo *repository.UserRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := GetUserID(r.Context())
+		if !ok {
+			Unauthorized(w, "invalid or missing user ID")
+			return
+		}
+
+		response := VerifyResponse{
+			UserID: userID,
+			Valid:  true,
+			Status: "authenticated",
+		}
+		JSONResponse(w, http.StatusOK, response)
+	}
+}
+
 // createToken generates a JWT token and stores it in the database
 // Token specifies userID as the subject and expires in 24 hours
 func createToken(ctx context.Context, tokenRepo *repository.TokenRepository, userID int64, jwtSecret string) (string, time.Time, error) {
@@ -313,4 +338,11 @@ func findSubstring(s, substr string) bool {
 		}
 	}
 	return false
+}
+
+// VerifyResponse is the response returned when verifying auth status
+type VerifyResponse struct {
+	UserID int64  `json:"user_id"`
+	Valid  bool   `json:"valid"`
+	Status string `json:"status"`
 }

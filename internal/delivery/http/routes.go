@@ -45,6 +45,7 @@ func Routes(deps RouterDeps) *chi.Mux {
 	r.Group(func(pr chi.Router) {
 		pr.Use(AuthMiddleware(deps.TokenRepo, deps.JWTSecret))
 
+		pr.Get("/auth/verify", HandleVerifyAuth(deps.UserRepo))
 		pr.Post("/auth/logout", HandleLogOut(deps.TokenRepo))
 
 		// Uploads
